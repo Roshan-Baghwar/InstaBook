@@ -5,3 +5,6 @@ from django.http import HttpResponse
 def index(request):
     # return HttpResponse('<h1>Welcome To InstaBook!')
     return render(request, 'index.html')
+
+def signup(request):
+    return render(request, 'signup.html')
