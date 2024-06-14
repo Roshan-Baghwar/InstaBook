@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
-from InstaBookApplication.models import Profile, Post, LikePost
+from itertools import chain
+from InstaBookApplication.models import Profile, Post, LikePost, Follow
 
 
 def index(request):
@@ -112,14 +113,71 @@ def profile(request, pk):
     user_post = Post.objects.filter(username=pk)
     user_post_length = len(user_post)
 
+    follower = request.user.username
+    user = pk
+
+    user_followers = len(Follow.objects.filter(user=pk))
+    user_following = len(Follow.objects.filter(follower=pk))
+
+    if Follow.objects.filter(follower=follower, user=user).first():
+        button_text = 'Unfollow'
+    else:
+        button_text= 'Follow'
+
     context = {
         'user_object': user_object,
         'user_profile': user_profile,
         'user_post' : user_post,
-        'user_post_length': user_post_length
+        'user_post_length': user_post_length,
+        'user_followers' : user_followers,
+        'user_following' : user_following,
+        'button_text' : button_text
     }
     return render(request, 'profile.html', context)
 
+# api /follow
+def follow(request):
+    if request.method == 'POST':
+        follower = request.POST['follower']
+        user = request.POST['user']
+
+        if Follow.objects.filter(follower=follower, user=user).first():
+            delete_follower = Follow.objects.get(follower=follower, user=user)
+            delete_follower.delete()
+            return redirect('/profile/'+user)
+        else:
+            new_follower = Follow.objects.create(follower=follower, user=user)
+            new_follower.save()
+            return redirect('/profile/'+user)
+
+    else:
+        return redirect('/')
+
+# api /search
+def search(request):
+    user_object = User.objects.get(username=request.user.username)
+    user_profile = Profile.objects.get(username=user_object)
+
+    if request.method == 'POST':
+        username = request.POST['username']
+        username_object = User.objects.filter(username__icontains=username)
+
+        username_profile = []
+        username_profile_list = []
+
+        for users in username_object:
+            username_profile.append(users.id)
+
+        for id in username_profile:
+            profile_lists = Profile.objects.filter(username=id)
+            username_profile_list.append(profile_lists)
+
+        username_profile_list = list(chain(*username_profile_list))
+        context = {
+            'user_profile' : user_profile,
+            'username_profile_list' : username_profile_list
+        }
+    return render(request, 'search.html', context)
 # api /logout
 def logout(request):
     auth.logout(request)
