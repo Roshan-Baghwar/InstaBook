@@ -7,3 +7,6 @@ def index(request):
 
 def signup(request):
     return UserService.signup(request)
+
+def signin(request):
+    return UserService.signin(request)

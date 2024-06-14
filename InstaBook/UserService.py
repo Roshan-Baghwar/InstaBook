@@ -4,11 +4,13 @@ from django.contrib import messages
 from django.http import HttpResponse
 from InstaBookApplication.models import Profile
 
-# added signup functionality
+# api /signup
 def signup(request):
 
     if request.method == 'POST':
-        name = request.POST['name']
+        firstName = request.POST['firstName']
+        lastName = request.POST['lastName']
+        username = request.POST['username']
         mobile = request.POST['mobile']
         email = request.POST['email']
         password = request.POST['password']
@@ -22,11 +24,11 @@ def signup(request):
                 messages.info(request, 'Email Already Exists')
                 return redirect('signup')
             else:
-                user = User.objects.create_user(username=name, id=mobile, email=email, password=password)
+                user = User.objects.create_user(username=username, id=mobile, email=email, password=password)
                 user.save()
 
-                user_model = User.objects.get(username=name)
-                new_profile = Profile.objects.create(user=user_model, id_user=user_model.id)
+                user_model = User.objects.get(username=username)
+                new_profile = Profile.objects.create(user=user_model, username=username, name=firstName+' '+lastName, mobile=mobile, email=email)
                 new_profile.save()
                 return redirect('signup')
 
@@ -35,3 +37,22 @@ def signup(request):
             return redirect('signup')
     else:
         return render(request, 'signup.html')
+    
+# api /signin
+def signin(request):
+
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+
+        user = auth.authenticate(username=username, password=password)
+
+        if user is not None:
+            auth.login(request, user)
+            return redirect('/')
+        else:
+            messages.info(request, 'Invalid Credentials')
+            return redirect('signin')
+        
+    else:   
+        return render(request, 'signin.html')
