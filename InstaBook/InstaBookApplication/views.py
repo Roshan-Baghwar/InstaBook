@@ -19,5 +19,9 @@ def post(request):
     return UserService.post(request)
 
 @login_required(login_url='signin')
+def likepost(request):
+    return UserService.likepost(request)
+
+@login_required(login_url='signin')
 def logout(request):
     return UserService.logout(request)
