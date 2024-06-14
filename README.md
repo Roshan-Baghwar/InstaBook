@@ -25,6 +25,9 @@ python manage.py makemigrations
 ```
 python manage.py migrate
 ```
+- Django admin dashboard can be accessed using `/admin` api.
+- Username is `admin` and Password is `admin`
+
 ## Run the Application
 - From base directory run the following command to run the application.
 ```
