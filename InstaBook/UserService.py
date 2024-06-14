@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.http import HttpResponse
 from InstaBookApplication.models import Profile
 
+# added signup functionality
 def signup(request):
 
     if request.method == 'POST':
