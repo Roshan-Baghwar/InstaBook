@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
+from itertools import chain
 from InstaBookApplication.models import Profile, Post, LikePost, Follow
 
 
@@ -152,6 +153,31 @@ def follow(request):
     else:
         return redirect('/')
 
+# api /search
+def search(request):
+    user_object = User.objects.get(username=request.user.username)
+    user_profile = Profile.objects.get(username=user_object)
+
+    if request.method == 'POST':
+        username = request.POST['username']
+        username_object = User.objects.filter(username__icontains=username)
+
+        username_profile = []
+        username_profile_list = []
+
+        for users in username_object:
+            username_profile.append(users.id)
+
+        for id in username_profile:
+            profile_lists = Profile.objects.filter(username=id)
+            username_profile_list.append(profile_lists)
+
+        username_profile_list = list(chain(*username_profile_list))
+        context = {
+            'user_profile' : user_profile,
+            'username_profile_list' : username_profile_list
+        }
+    return render(request, 'search.html', context)
 # api /logout
 def logout(request):
     auth.logout(request)

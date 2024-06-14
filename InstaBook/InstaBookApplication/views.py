@@ -31,5 +31,9 @@ def follow(request):
     return UserService.follow(request)
 
 @login_required(login_url='signin')
+def search(request):
+    return UserService.search(request)
+
+@login_required(login_url='signin')
 def logout(request):
     return UserService.logout(request)
