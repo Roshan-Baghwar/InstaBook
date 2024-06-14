@@ -115,6 +115,9 @@ def profile(request, pk):
     follower = request.user.username
     user = pk
 
+    user_followers = len(Follow.objects.filter(user=pk))
+    user_following = len(Follow.objects.filter(follower=pk))
+
     if Follow.objects.filter(follower=follower, user=user).first():
         button_text = 'Unfollow'
     else:
@@ -125,6 +128,8 @@ def profile(request, pk):
         'user_profile': user_profile,
         'user_post' : user_post,
         'user_post_length': user_post_length,
+        'user_followers' : user_followers,
+        'user_following' : user_following,
         'button_text' : button_text
     }
     return render(request, 'profile.html', context)
