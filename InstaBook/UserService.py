@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
-from InstaBookApplication.models import Profile, Post, LikePost
+from InstaBookApplication.models import Profile, Post, LikePost, Follow
 
 
 def index(request):
@@ -112,13 +112,40 @@ def profile(request, pk):
     user_post = Post.objects.filter(username=pk)
     user_post_length = len(user_post)
 
+    follower = request.user.username
+    user = pk
+
+    if Follow.objects.filter(follower=follower, user=user).first():
+        button_text = 'Unfollow'
+    else:
+        button_text= 'Follow'
+
     context = {
         'user_object': user_object,
         'user_profile': user_profile,
         'user_post' : user_post,
-        'user_post_length': user_post_length
+        'user_post_length': user_post_length,
+        'button_text' : button_text
     }
     return render(request, 'profile.html', context)
+
+# api /follow
+def follow(request):
+    if request.method == 'POST':
+        follower = request.POST['follower']
+        user = request.POST['user']
+
+        if Follow.objects.filter(follower=follower, user=user).first():
+            delete_follower = Follow.objects.get(follower=follower, user=user)
+            delete_follower.delete()
+            return redirect('/profile/'+user)
+        else:
+            new_follower = Follow.objects.create(follower=follower, user=user)
+            new_follower.save()
+            return redirect('/profile/'+user)
+
+    else:
+        return redirect('/')
 
 # api /logout
 def logout(request):
