@@ -35,5 +35,9 @@ def search(request):
     return UserService.search(request)
 
 @login_required(login_url='signin')
+def settings(request):
+    return UserService.settings(request)
+
+@login_required(login_url='signin')
 def logout(request):
     return UserService.logout(request)

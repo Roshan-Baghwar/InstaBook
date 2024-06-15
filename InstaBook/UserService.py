@@ -38,11 +38,14 @@ def signup(request):
                 user = User.objects.create_user(username=username, id=mobile, email=email, password=password)
                 user.save()
 
+                user_login = auth.authenticate(username=username, password=password)
+                auth.login(request, user_login)
+
                 user_model = User.objects.get(username=username)
-                new_profile = Profile.objects.create(user=user_model, username=username, name=firstName+' '+lastName, mobile=mobile, email=email)
+                new_profile = Profile.objects.create(user=user_model, username=username, firstName=firstName, lastName=lastName, mobile=mobile, email=email)
                 new_profile.save()
-                messages.info(request, 'Sign Up Successful!')
-                return redirect('signup')
+                # messages.info(request, 'Sign Up Successful!')
+                return redirect('settings')
 
         else:
             messages.info(request, 'Password Not Matching')
@@ -68,6 +71,44 @@ def signin(request):
         
     else:   
         return render(request, 'signin.html')
+
+# api /settings
+def settings(request):
+    user_profile = Profile.objects.get(user=request.user)
+
+    if request.method == 'POST':
+
+        if request.FILES.get('image') == None:
+            image = user_profile.profileimg
+        else:
+            image = request.FILES.get('image')
+        if request.POST['firstName'] == None:
+            firstName = user_profile.firstName
+        else:
+            firstName = request.POST['firstName']
+        if request.POST['lastName'] == None:
+            lastName = user_profile.lastName
+        else:
+            lastName = request.POST['lastName']
+        if request.POST['email'] == None:
+            email = user_profile.email
+        else:
+            email = request.POST['email']
+
+        bio = request.POST['bio']
+        location = request.POST['location']
+
+        user_profile.profileimg = image
+        user_profile.firstName = firstName
+        user_profile.lastName = lastName
+        user_profile.email = email
+        user_profile.bio = bio
+        user_profile.location = location
+        user_profile.save()
+        return redirect('settings')
+
+
+    return render(request, 'setting.html', {'user_profile':user_profile})
     
 # api /post
 def post(request):
