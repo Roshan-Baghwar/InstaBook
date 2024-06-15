@@ -115,7 +115,12 @@ def post(request):
 
     if request.method == 'POST':
         username = request.user.username
-        image = request.FILES.get('post_image')
+
+        if request.FILES.get('post_image') == None and request.POST['caption'] is not None:
+            image = 'hello.png'
+        else:
+            image = request.FILES.get('post_image')
+
         caption = request.POST['caption']
 
         new_post = Post.objects.create(username=username, image=image, caption=caption)
