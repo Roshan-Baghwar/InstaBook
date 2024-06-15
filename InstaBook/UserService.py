@@ -202,7 +202,7 @@ def follow(request):
 # api /search
 def search(request):
     user_object = User.objects.get(username=request.user.username)
-    user_profile = Profile.objects.get(username=user_object)
+    user_profile = Profile.objects.get(user=user_object)
 
     if request.method == 'POST':
         username = request.POST['username']
@@ -212,13 +212,15 @@ def search(request):
         username_profile_list = []
 
         for users in username_object:
-            username_profile.append(users.id)
+            username_profile.append(users.username)
 
         for id in username_profile:
             profile_lists = Profile.objects.filter(username=id)
             username_profile_list.append(profile_lists)
 
         username_profile_list = list(chain(*username_profile_list))
+        print(username_profile_list)
+        print(username_profile)
         context = {
             'user_profile' : user_profile,
             'username_profile_list' : username_profile_list
